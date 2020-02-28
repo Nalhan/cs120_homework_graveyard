@@ -1,0 +1,370 @@
+/*
+Nathan Park
+2/17/2015
+Exercise 6.1
+*/
+
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+// all functions print customer data, then return customer's computed total
+double getResidentialCharge(double);
+double getSCommercialCharge(double, double);
+double getLCommercialCharge(double, double, char);
+double getIndustrialCharge(double, double, char);
+double scheduleSwitchGetTotal(int, int, double, double, char);
+char fileRead, filePrint;
+ifstream inFile;
+ofstream outFile;
+string inputName, outputName;
+
+int main() {
+  int customerNumber = 0, scheduleNumber = 0;
+  double kwhUsage = 0, kwDemand = 0, totalCharge = 0;
+  char voltDiscount;  
+  cout << "Do you want to read from a file? (Y if yes): ";
+  cin >> fileRead;
+  
+  if (fileRead == 'Y') {
+    while (true){
+      cout << "Input file name: ";
+      cin >> inputName;
+      inFile.open(inputName.c_str());
+
+      if (inFile.is_open()) break;
+
+      cout << "Error: could not open file" << endl;
+    }
+  }
+  cout << "Do you want to save output to a file instead of printing? (Y if yes): ";
+  cin >> filePrint;
+    
+  if (filePrint == 'Y') {
+    while (true){
+      cout << "Output file name: ";
+      cin >> outputName;
+      outFile.open(outputName.c_str());
+      
+      if (outFile.is_open()) break;
+      
+      cout << "Error: could not open file" << endl;
+    } 
+ }
+    
+    do {
+      
+      customerNumber = 0, scheduleNumber = 0;
+      kwhUsage = 0, kwDemand = 0;
+      if (fileRead == 'Y') 
+	inFile >> customerNumber >> scheduleNumber >> kwhUsage >> kwDemand >> voltDiscount;
+      else {
+	cout << "Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: ";
+	cin >> customerNumber >> scheduleNumber >> kwhUsage >> kwDemand >> voltDiscount;
+      }
+	if (customerNumber == 000000) break;
+
+	totalCharge = totalCharge + scheduleSwitchGetTotal(customerNumber, scheduleNumber, kwhUsage, kwDemand, voltDiscount);		 
+
+    } while(true);
+
+    inFile.close();
+
+    if (filePrint == 'Y'){
+      outFile << "The total charge amount is " << totalCharge << endl;
+    }
+    
+    cout << "The total charge amount is: " << totalCharge << endl;
+    outFile.close();
+    return 0;
+}
+double getResidentialCharge(double kwhUsage) {
+	double customerCharge;
+	double first600;
+	double over600;
+	
+	if (kwhUsage > 600) {
+		first600 = 600 * (0.05255);
+		over600 = (kwhUsage - 600) * (0.06156);
+	}
+	else {
+		first600 = kwhUsage * (0.05255);
+		over600 = 0;
+	}
+	
+	customerCharge = 4 + first600 + over600;
+	
+	return customerCharge;
+}
+
+double getSCommercialCharge(double kwhUsage, double kwDemand) {
+	double customerCharge;
+	
+	if (kwDemand > 20) {
+		customerCharge = 6 + (kwhUsage * .07971) + ((kwDemand - 20) * 3.5);
+	}
+	
+	else {
+		customerCharge = 6 + (kwhUsage * .07971);
+	}
+
+	return customerCharge;
+}
+
+double getLCommercialCharge(double kwhUsage, double kwDemand, char voltDiscount) {
+	double customerCharge;
+	double demandRate = 3.0;
+	
+	if (voltDiscount == 'Y') {
+		demandRate = demandRate * .2;
+	}
+
+	if (kwhUsage > 20) {
+		customerCharge = 6 + (kwhUsage * .07719) + ((kwDemand - 20) * demandRate);
+	}
+	else {
+		customerCharge = 6 + (kwhUsage * .07719);
+	}
+
+	return customerCharge;
+}
+
+double getIndustrialCharge(double kwhUsage, double kwDemand, char voltDiscount) {
+	double customerCharge;
+	double demandRateUnder50;
+	double demandRateOver50;
+	
+	if (voltDiscount = 'Y') {
+		demandRateUnder50 = demandRateUnder50 * .2;
+		demandRateOver50 = demandRateOver50 * .2;
+	}
+
+	if (kwDemand > 50) {
+		customerCharge = (kwhUsage * .05022) + demandRateUnder50 + (demandRateOver50 * (kwDemand - 50));
+	}
+	else { 
+		customerCharge = (kwhUsage * .05022) + demandRateUnder50;
+	}
+	
+	return customerCharge;
+}
+
+double scheduleSwitchGetTotal(int customerNumber, int scheduleNumber, double kwhUsage, double kwDemand, char voltDiscount) {
+  double currTotal = 0;
+  switch (scheduleNumber) {
+  case 1:
+    currTotal = getResidentialCharge(kwhUsage);
+
+    if (filePrint == 'Y') {
+      outFile << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << endl;
+      outFile << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    }
+    
+    cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << endl;
+    cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    
+  
+    break;
+
+  case 11:
+    currTotal = getSCommercialCharge(kwhUsage, kwDemand);
+    
+    if (filePrint == 'Y') {
+      outFile << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << endl;
+      outFile << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    }
+    
+    cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << endl;
+    cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    
+    break;
+
+  case 12:
+    currTotal = getLCommercialCharge(kwhUsage, kwDemand, voltDiscount);
+    
+    if (filePrint == 'Y') {
+      outFile << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+      outFile << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    }
+   
+    cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+    cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    
+    break;
+
+  case 21:
+    currTotal = getIndustrialCharge(kwhUsage, kwDemand, voltDiscount);
+
+    if (filePrint == 'Y') {
+      outFile << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+      outFile << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    }
+
+    cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+    cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+    
+    break;
+
+  default:
+    if (filePrint == 'Y')
+      outFile << "Schedule number is invalid";
+    cout << "Schedule number is invalid";
+    break;
+  }
+  
+  return currTotal; 
+}	
+
+bash-4.1$ ~/lab6
+Do you want to read from a file? (Y if yes): Y
+Input file name: lab6data
+Do you want to save output to a file instead of printing? (Y if yes): Y
+Output file name: lab6output
+178531	1	540
+Customer 178531's total is 32.377
+459875	11	851	15
+Customer 459875's total is 73.8332
+629875	1	1024
+Customer 629875's total is 61.6314
+294653	12	11441	22	N
+Customer 294653's total is 895.131
+258735	21	20450	31	N
+Customer 258735's total is 1027
+689237	11	1551	28
+Customer 689237's total is 157.63
+375960	1	300
+Customer 375960's total is 19.765
+486574	21	25142	70	Y
+Customer 486574's total is 1262.63
+834765	12	9142	18	Y
+Customer 834765's total is 710.471
+198763	21	5413	55	N
+Customer 198763's total is 271.841
+335467	1	1873
+Customer 335467's total is 113.896
+154674	21	4795	44	Y
+Customer 154674's total is 240.805
+The total charge amount is: 4867.01
+bash-4.1$ ~/lab6
+Do you want to read from a file? (Y if yes): Y
+Input file name: help
+Error: could not open file
+Input file name: nofile
+Error: could not open file
+Input file name: notopening
+Error: could not open file
+Input file name: lab5data
+Do you want to save output to a file instead of printing? (Y if yes): Y
+Output file name: lab6output2
+372869	1	670
+Customer 372869's total is 39.8392
+327909	11	924	23
+Customer 327909's total is 90.152
+175738	1	1576
+Customer 175738's total is 95.6126
+683719	12	21790	24	N
+Customer 683719's total is 1699.97
+271980	21	29387	38	N
+Customer 271980's total is 1475.82
+567493	11	1858	24
+Customer 567493's total is 168.101
+100324	1	450
+Customer 100324's total is 27.6475
+271264	21	18093	95	Y
+Customer 271264's total is 908.63
+201374	12	12738	18	Y
+Customer 201374's total is 988.046
+578321	1	203
+Customer 578321's total is 14.6677
+621873	11	785	17
+Customer 621873's total is 68.5724
+371648	21	19748	55	N
+Customer 371648's total is 991.745
+123456	21	23840	35	Y
+Customer 123456's total is 1197.24
+132465	12	22300	15	Y
+Customer 132465's total is 1724.34
+The total charge amount is: 9490.38
+bash-4.1$ ~/lab6
+Do you want to read from a file? (Y if yes): N
+Do you want to save output to a file instead of printing? (Y if yes): N
+Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: 123456 1 400 0 0
+123456	1	400
+Customer 123456's total is 25.02
+Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: 345726 11 500 30 0
+345726	11	500	30
+Customer 345726's total is 80.855
+Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: 384624 21 30000 40 N
+384624	12	30000	40	N
+Customer 384624's total is 2381.7
+Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: 293473 21 37470 68 Y
+293473	21	37470	68	Y
+Customer 293473's total is 1881.74
+Input customer #, schedule #, kWh usage, kW demand, y/n volt discount: 000000 0 0 0 0
+The total charge amount is: 4369.32
+
+Output files:
+lab6output
+
+178531	1	540
+Customer 178531's total is 32.377
+459875	11	851	15
+Customer 459875's total is 73.8332
+629875	1	1024
+Customer 629875's total is 61.6314
+294653	12	11441	22	N
+Customer 294653's total is 895.131
+258735	21	20450	31	N
+Customer 258735's total is 1027
+689237	11	1551	28
+Customer 689237's total is 157.63
+375960	1	300
+Customer 375960's total is 19.765
+486574	21	25142	70	Y
+Customer 486574's total is 1262.63
+834765	12	9142	18	Y
+Customer 834765's total is 710.471
+198763	21	5413	55	N
+Customer 198763's total is 271.841
+335467	1	1873
+Customer 335467's total is 113.896
+154674	21	4795	44	Y
+Customer 154674's total is 240.805
+The total charge amount is 4867.01
+
+lab6output2
+
+372869	1	670
+Customer 372869's total is 39.8392
+327909	11	924	23
+Customer 327909's total is 90.152
+175738	1	1576
+Customer 175738's total is 95.6126
+683719	12	21790	24	N
+Customer 683719's total is 1699.97
+271980	21	29387	38	N
+Customer 271980's total is 1475.82
+567493	11	1858	24
+Customer 567493's total is 168.101
+100324	1	450
+Customer 100324's total is 27.6475
+271264	21	18093	95	Y
+Customer 271264's total is 908.63
+201374	12	12738	18	Y
+Customer 201374's total is 988.046
+578321	1	203
+Customer 578321's total is 14.6677
+621873	11	785	17
+Customer 621873's total is 68.5724
+371648	21	19748	55	N
+Customer 371648's total is 991.745
+123456	21	23840	35	Y
+Customer 123456's total is 1197.24
+132465	12	22300	15	Y
+Customer 132465's total is 1724.34
+The total charge amount is 9490.38
+
+
+

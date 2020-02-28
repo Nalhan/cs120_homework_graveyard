@@ -1,0 +1,49 @@
+/*
+  Nathan Park
+  Exercise 7.1
+  3/9/15
+*/
+
+#include <iostream>
+using namespace std;
+
+int main(){
+  int datainput[10];
+  int sum = 0, avg, i;
+
+  cout << "Input 10 integers:" << endl; 
+  for (i = 0; i < 10; i++) {
+    cin >> datainput[i];
+  }
+  
+  cout << "Your input was: ";
+  for (i = 0; i < 10; i++){
+    cout << datainput[i] << ' ';
+    sum = sum + datainput[i];
+  }
+
+  avg = sum/i;
+  cout << "Sum: " << sum << endl;
+  cout << "Avg: " << avg << endl;
+ 
+  return 0;
+}
+
+bash-4.1$ ~/lab7
+Input 10 integers:
+1
+3
+5
+7
+9
+8
+6
+4
+2
+10
+Your input was: 1 3 5 7 9 8 6 4 2 10 Sum: 55
+Avg: 5
+
+When printing the 11th element of the array, it printed out the number 4196464 every single time. I assume this is just a value from somewhere else in memory.
+
+When printing the 10,000th element, it gave an error message. The message was "Segmentation fault".

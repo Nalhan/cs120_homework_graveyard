@@ -1,0 +1,178 @@
+/*
+Nathan Park
+2/17/2015
+Exercise 5.1
+*/
+
+#include <iostream>
+
+using namespace std;
+
+// all functions print customer data, then return customer's computed total to main
+double getResidentialCharge(double);
+double getSCommercialCharge(double, double);
+double getLCommercialCharge(double, double, char);
+double getIndustrialCharge(double, double, char);
+int main() {
+	int customerNumber = 0, scheduleNumber = 0;
+	double kwhUsage = 0, kwDemand = 0, totalCharge = 0, currTotal = 0;
+	char voltDiscount;
+	
+	do {
+		customerNumber = 0, scheduleNumber = 0;
+		kwhUsage = 0, kwDemand = 0, currTotal = 0;
+		cin >> customerNumber >> scheduleNumber >> kwhUsage >> kwDemand >> voltDiscount;
+		
+		switch (scheduleNumber) {
+			case 1: 
+				cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << endl;
+				currTotal = getResidentialCharge(kwhUsage);
+				totalCharge = totalCharge + currTotal;
+				cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+				break;
+			case 11:
+				cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << endl;
+				currTotal = getSCommercialCharge(kwhUsage, kwDemand);
+				totalCharge = totalCharge + currTotal;
+				cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+				break;
+			case 12:
+				cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+				currTotal = getLCommercialCharge(kwhUsage, kwDemand, voltDiscount);
+				totalCharge = totalCharge + currTotal;
+				cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+				break;
+			case 21:
+				cout << customerNumber << "	" << scheduleNumber << "	" << kwhUsage << "	" << kwDemand << "	" << voltDiscount << endl;
+				currTotal = getIndustrialCharge(kwhUsage, kwDemand, voltDiscount);
+				totalCharge = totalCharge + currTotal;
+				cout << "Customer " << customerNumber << "'s total is " << currTotal << endl;
+				break;
+		}
+		
+		if (customerNumber == 000000) break;	
+	} while (true);
+	
+	cout << "The total charge amount is: " << totalCharge << endl;
+	return 0;
+}
+
+double getResidentialCharge(double kwhUsage) {
+	double customerCharge;
+	double first600;
+	double over600;
+	
+	if (kwhUsage > 600) {
+		first600 = 600 * (0.05255);
+		over600 = (kwhUsage - 600) * (0.06156);
+	}
+	else {
+		first600 = kwhUsage * (0.05255);
+		over600 = 0;
+	}
+	
+	customerCharge = 4 + first600 + over600;
+	
+	return customerCharge;
+}
+
+double getSCommercialCharge(double kwhUsage, double kwDemand) {
+	double customerCharge;
+	
+	if (kwDemand > 20) {
+		customerCharge = 6 + (kwhUsage * .07971) + ((kwDemand - 20) * 3.5);
+	}
+	
+	else {
+		customerCharge = 6 + (kwhUsage * .07971);
+	}
+
+	return customerCharge;
+}
+
+double getLCommercialCharge(double kwhUsage, double kwDemand, char voltDiscount) {
+	double customerCharge;
+	double demandRate = 3.0;
+	
+	if (voltDiscount == 'Y') {
+		demandRate = demandRate * .2;
+	}
+
+	if (kwhUsage > 20) {
+		customerCharge = 6 + (kwhUsage * .07719) + ((kwDemand - 20) * demandRate);
+	}
+	else {
+		customerCharge = 6 + (kwhUsage * .07719);
+	}
+
+	return customerCharge;
+}
+
+double getIndustrialCharge(double kwhUsage, double kwDemand, char voltDiscount) {
+	double customerCharge;
+	double demandRateUnder50;
+	double demandRateOver50;
+	
+	if (voltDiscount = 'Y') {
+		demandRateUnder50 = demandRateUnder50 * .2;
+		demandRateOver50 = demandRateOver50 * .2;
+	}
+
+	if (kwDemand > 50) {
+		customerCharge = (kwhUsage * .05022) + demandRateUnder50 + (demandRateOver50 * (kwDemand - 50));
+	}
+	else { 
+		customerCharge = (kwhUsage * .05022) + demandRateUnder50;
+	}
+	
+	return customerCharge;
+}
+
+Script started on Tue 17 Feb 2015 10:09:10 AM PST
+bash-4.1$ ~/lab5 < lab5data
+372869	1	670
+Customer 372869's total is 39.8392
+327909	11	924	23
+Customer 327909's total is 90.152
+175738	1	1576
+Customer 175738's total is 95.6126
+683719	12	21790	24	N
+Customer 683719's total is 1699.97
+271980	21	29387	38	N
+Customer 271980's total is 1475.82
+567493	11	1858	24
+Customer 567493's total is 168.101
+100324	1	450
+Customer 100324's total is 27.6475
+271264	21	18093	95	Y
+Customer 271264's total is 908.63
+201374	12	12738	18	Y
+Customer 201374's total is 988.046
+578321	1	203
+Customer 578321's total is 14.6677
+621873	11	785	17
+Customer 621873's total is 68.5724
+371648	21	19748	55	N
+Customer 371648's total is 991.745
+123456	21	23840	35	Y
+Customer 123456's total is 1197.24
+132465	12	22300	15	Y
+Customer 132465's total is 1724.34
+The total charge amount is: 9490.38
+
+372869	1	670	0	0
+327909	11	924	23	0
+175738	1	1576	0	0
+683719	12	21790	24	N
+271980	21	29387	38	N
+567493	11	1858	24	0
+100324	1	450	0	0
+271264	21	18093	95	Y
+201374	12	12738	18	Y
+578321	1	203	0	0
+621873	11	785	17	0
+371648	21	19748	55	N
+123456	21	23840	35	Y
+132465	12	22300	15	Y
+000000	0	0	0	0
+
